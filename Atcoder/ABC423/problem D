@@ -1,0 +1,93 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+struct Group {
+    long long A, B;
+    int C, id;
+};
+
+bool compareGroups(const Group& a, const Group& b) {
+    return a.A < b.A;
+}
+
+void solve() {
+    int N;
+    long long K;
+    cin >> N >> K;
+    vector<Group> groups(N);
+    for (int i = 0; i < N; ++i) {
+        cin >> groups[i].A >> groups[i].B >> groups[i].C;
+        groups[i].id = i;
+    }
+    sort(groups.begin(), groups.end(), compareGroups);
+    vector<long long> ans(N);
+    long long current_capacity = 0;
+    queue<tuple<long long, int, int>> waiting_queue;
+    priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<pair<long long, int>>> in_restaurant;
+    for (int i = 0; i < N; ++i) {
+        long long current_A = groups[i].A;
+        while (!in_restaurant.empty() && in_restaurant.top().first <= current_A) {
+            long long leave_time = in_restaurant.top().first;
+            int group_size = in_restaurant.top().second;
+            in_restaurant.pop();
+            current_capacity -= group_size;
+            while (!waiting_queue.empty()) {
+                auto front_group = waiting_queue.front();
+                long long b = get<0>(front_group);
+                int c = get<1>(front_group);
+                int id = get<2>(front_group);
+                if (current_capacity + c <= K) {
+                    ans[id] = leave_time;
+                    current_capacity += c;
+                    in_restaurant.push({leave_time + b, c});
+                    waiting_queue.pop();
+                } else {
+                    break;
+                }
+            }
+        }
+        long long current_B = groups[i].B;
+        int current_C = groups[i].C;
+        int current_id = groups[i].id;
+        if (waiting_queue.empty() && current_capacity + current_C <= K) {
+            ans[current_id] = current_A;
+            current_capacity += current_C;
+            in_restaurant.push({current_A + current_B, current_C});
+        } else {
+            waiting_queue.push({current_B, current_C, current_id});
+        }
+    }
+    while (!waiting_queue.empty()) {
+        long long leave_time = in_restaurant.top().first;
+        int group_size = in_restaurant.top().second;
+        in_restaurant.pop();
+        current_capacity -= group_size;
+        while (!waiting_queue.empty()) {
+            auto front_group = waiting_queue.front();
+            long long b = get<0>(front_group);
+            int c = get<1>(front_group);
+            int id = get<2>(front_group);
+            if (current_capacity + c <= K) {
+                ans[id] = leave_time;
+                current_capacity += c;
+                in_restaurant.push({leave_time + b, c});
+                waiting_queue.pop();
+            } else {
+                break;
+            }
+        }
+    }  
+    for (int i = 0; i < N; ++i) {
+        cout << ans[i] << "\n";
+    }
+}
+
+int main() {
+    FASTIO;
+    int t = 1; 
+    // cin >> t;
+    while (t--) solve();
+    return 0;
+}
