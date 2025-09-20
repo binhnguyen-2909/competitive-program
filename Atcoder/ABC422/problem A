@@ -1,0 +1,28 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+const int MOD = (int)1e9 + 7;
+
+void solve() {
+    string s;
+    cin >> s;
+    int world = s[0] - '0';
+    int stage = s[2] - '0';
+    if (stage < 8) {
+        stage++;
+    } else {
+        world++;
+        stage = 1;
+    }
+    cout << world << "-" << stage << endl;
+}
+
+int main() {
+    FASTIO;
+    int t = 1; 
+    // cin >> t;
+    while (t--) solve();
+    return 0;
+}
