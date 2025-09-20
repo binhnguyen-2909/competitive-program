@@ -1,0 +1,52 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+const int MOD = (int)1e9 + 7;
+
+void solve() {
+    int n;
+    long long r;
+    cin >> n >> r;
+    vector<int> l(n);
+    vector<int> unlocked_indices;
+    for (int i = 0; i < n; ++i) {
+        cin >> l[i];
+        if (l[i] == 0) {
+            unlocked_indices.push_back(i + 1);
+        }
+    }
+    if (unlocked_indices.empty()) {
+        cout << 0 << endl;
+        return;
+    }
+    long long k = unlocked_indices.size();
+    long long min_u = unlocked_indices.front();
+    long long max_u = unlocked_indices.back();
+    vector<int> prefix_locked(n + 2, 0);
+    for (int i = 0; i < n; ++i) {
+        prefix_locked[i + 1] = prefix_locked[i] + l[i];
+    }
+    auto count_locked = [&](long long a, long long b) {
+        if (a > b) return 0LL;
+        if (a < 1) a = 1;
+        if (b > n) b = n;
+        return (long long)prefix_locked[b] - prefix_locked[a - 1];
+    };
+    long long pos_l = min_u - 1;
+    long long pos_r = max_u;
+    long long start_door = min(r, pos_l) + 1;
+    long long end_door = max(r, pos_r);
+    long long locked_count = count_locked(start_door, end_door);
+    long long cost = k + 2 * locked_count;
+    cout << cost << endl;
+}
+
+int main() {
+    FASTIO;
+    int t = 1; 
+    // cin >> t;
+    while (t--) solve();
+    return 0;
+}
