@@ -1,0 +1,27 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+const int MOD = (int)1e9 + 7;
+
+void solve() {
+    int X, C;
+    cin >> X >> C;
+    int cost_per_1000 = 1000 + C;
+    if (X < cost_per_1000) {
+        cout << 0 << endl;
+        return;
+    }
+    int k = X / cost_per_1000;
+    int withdrawal_amount = k * 1000;
+    cout << withdrawal_amount << endl;
+}
+
+int main() {
+    FASTIO;
+    int t = 1; 
+    // cin >> t;
+    while (t--) solve();
+    return 0;
+}
