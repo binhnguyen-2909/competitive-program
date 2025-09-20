@@ -1,0 +1,44 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+const int MOD = (int)1e9 + 7;
+
+void solve() {
+    int N;
+    cin >> N;
+    vector<int> L(N);
+    for (int i = 0; i < N; ++i) {
+        cin >> L[i];
+    }
+    int rightmost_from_left = 0;
+    for (int i = 0; i < N; ++i) {
+        if (L[i] == 0) {
+            rightmost_from_left = i + 1;
+        } else {
+            break;
+        }
+    }
+    int leftmost_from_right = N;
+    for (int i = N - 1; i >= 0; --i) {
+        if (L[i] == 0) {
+            leftmost_from_right = i;
+        } else {
+            break;
+        }
+    }
+    int unreachable_rooms = 0;
+    if (leftmost_from_right > rightmost_from_left) {
+        unreachable_rooms = leftmost_from_right - rightmost_from_left - 1;
+    }
+    cout << unreachable_rooms << endl;
+}
+
+int main() {
+    FASTIO;
+    int t = 1; 
+    // cin >> t;
+    while (t--) solve();
+    return 0;
+}
