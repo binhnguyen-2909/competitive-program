@@ -1,0 +1,82 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+ostream& operator<<(ostream& os, __int128 val) {
+    if (val == 0) return os << "0";
+    string s;
+    bool neg = val < 0;
+    if (neg) val = -val;
+    while (val > 0) {
+        s += (val % 10) + '0';
+        val /= 10;
+    }
+    if (neg) s += '-';
+    reverse(s.begin(), s.end());
+    return os << s;
+}
+
+__int128 gcd(__int128 a, __int128 b) {
+    while (b) {
+        a %= b;
+        swap(a, b);
+    }
+    return a;
+}
+
+void solve() {
+    int N, M;
+    long long Y_ll;
+    cin >> N >> M >> Y_ll;
+    __int128 Y = Y_ll;
+    vector<long long> A(N);
+    for (int i = 0; i < N; ++i) {
+        cin >> A[i];
+    }
+    vector<vector<long long>> C(N + 1, vector<long long>(N + 1, 0));
+    for (int i = 0; i <= N; ++i) {
+        C[i][0] = 1;
+        for (int j = 1; j <= i; ++j) {
+            C[i][j] = C[i - 1][j - 1] + C[i - 1][j];
+        }
+    }
+    __int128 total_count = 0;
+    for (int i = 1; i < (1 << N); ++i) {
+        __int128 current_lcm = 1;
+        int subset_size = 0;   
+        for (int j = 0; j < N; ++j) {
+            if ((i >> j) & 1) {
+                subset_size++;
+                __int128 aj = A[j];
+                __int128 g = gcd(current_lcm, aj);
+                if (current_lcm / g > Y / aj) {
+                    current_lcm = Y + 1;
+                    break;
+                }
+                current_lcm = (current_lcm / g) * aj;
+            }
+        }
+        if (current_lcm > Y) {
+            continue;
+        }
+        if (subset_size < M) {
+            continue;
+        }
+        __int128 num_years = Y / current_lcm;
+        if ((subset_size - M) % 2 == 0) {
+            total_count += C[subset_size][M] * num_years;
+        } else {
+            total_count -= C[subset_size][M] * num_years;
+        }
+    }
+    cout << total_count << "\n";
+}
+
+int main() {
+    FASTIO;
+    int t = 1; 
+    // cin >> t;
+    while (t--) solve();
+    return 0;
+}
