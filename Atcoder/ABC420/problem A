@@ -1,0 +1,25 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+const int MOD = (int)1e9 + 7;
+
+void solve() {
+    int x, y;
+    cin >> x >> y;
+    int ans = (x + y) % 12;
+    if (ans == 0) {
+        cout << 12 << endl;
+    } else {
+        cout << ans << endl;
+    }
+}
+
+int main() {
+    FASTIO;
+    int t = 1; 
+    // cin >> t;
+    while (t--) solve();
+    return 0;
+}
