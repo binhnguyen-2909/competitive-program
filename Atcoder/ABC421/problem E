@@ -1,0 +1,123 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ld = long double;
+int K;               
+vector<int> vals;        
+vector<ld> probv;         
+ld factv[6];            
+const int BASE = 6;   
+long long encode(const vector<int>& v) {
+    long long key = 0, mul = 1;
+    for (int x : v) { key += mul * x; mul *= BASE; }
+    return key;
+}
+ld multinom_prob(int n, const vector<int>& x) {
+    ld res = factv[n];
+    for (int i = 0; i < K; ++i) res *= pow(probv[i], (int)x[i]) / factv[x[i]];
+    return res;
+}
+template<class F>
+void compositions(int n, F fn) {
+    vector<int> cur(K, 0);
+    function<void(int,int)> rec = [&](int idx, int remaining){
+        if (idx == K - 1) {
+            cur[idx] = remaining;
+            fn(cur);
+            return;
+        }
+        for (int x = 0; x <= remaining; ++x) {
+            cur[idx] = x;
+            rec(idx + 1, remaining - x);
+        }
+    };
+    rec(0, n);
+}
+unordered_map<long long, ld> memoE3, memoE2;
+ld E3(long long enc_b) {
+    auto it = memoE3.find(enc_b);
+    if (it != memoE3.end()) return it->second;
+    vector<int> b(K);
+    long long t = enc_b;
+    int sumb = 0;
+    for (int i = 0; i < K; ++i) { b[i] = t % BASE; t /= BASE; sumb += b[i]; }
+    int r = 5 - sumb;
+    if (r < 0) return memoE3[enc_b] = (ld)-1e100;
+    ld ev = 0.0L;
+    compositions(r, [&](vector<int>& x3){
+        ld pr = multinom_prob(r, x3);
+        ld best = 0.0L;
+        for (int i = 0; i < K; ++i) {
+            ld cand = (ld)vals[i] * (ld)(b[i] + x3[i]);
+            if (cand > best) best = cand;
+        }
+        ev += pr * best;
+    });
+    return memoE3[enc_b] = ev;
+}
+ld E2(long long enc_y) {
+    auto it = memoE2.find(enc_y);
+    if (it != memoE2.end()) return it->second;
+    vector<int> y(K);
+    long long t = enc_y;
+    int sumy = 0;
+    for (int i = 0; i < K; ++i) { y[i] = t % BASE; t /= BASE; sumy += y[i]; }
+    int u = 5 - sumy;
+    if (u < 0) return memoE2[enc_y] = (ld)-1e100;
+    ld ev = 0.0L;
+    compositions(u, [&](vector<int>& x2){
+        ld pr = multinom_prob(u, x2);
+        vector<int> z(K,0), b(K,0);
+        ld best = -1e100L;
+        function<void(int)> rec = [&](int i){
+            if (i == K) {
+                for (int j = 0; j < K; ++j) b[j] = y[j] + z[j];
+                best = max(best, E3(encode(b)));
+                return;
+            }
+            for (int take = 0; take <= x2[i]; ++take) {
+                z[i] = take;
+                rec(i+1);
+            }
+        };
+        rec(0);
+        ev += pr * best;
+    });
+    return memoE2[enc_y] = ev;
+}
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    vector<int> A(6);
+    for (int i = 0; i < 6; ++i) cin >> A[i];
+    map<int,int> cnt;
+    for (int a : A) cnt[a]++;
+    for (auto &kv : cnt) {
+        vals.push_back(kv.first);
+        probv.push_back((ld)kv.second / 6.0L);
+    }
+    K = (int)vals.size();
+    factv[0] = 1.0L;
+    for (int i = 1; i <= 5; ++i) factv[i] = factv[i-1] * (ld)i;
+    ld answer = 0.0L;
+    compositions(5, [&](vector<int>& x1){
+        ld pr1 = multinom_prob(5, x1);
+        vector<int> z1(K,0);
+        ld best = -1e100L;
+
+        function<void(int)> rec = [&](int i){
+            if (i == K) {
+                best = max(best, E2(encode(z1)));
+                return;
+            }
+            for (int take = 0; take <= x1[i]; ++take) {
+                z1[i] = take;
+                rec(i+1);
+            }
+        };
+        rec(0);
+        answer += pr1 * best;
+    });
+    cout.setf(std::ios::fixed); 
+    cout << setprecision(10) << (double)answer << "\n";
+    return 0;
+}
