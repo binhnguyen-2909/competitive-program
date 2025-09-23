@@ -1,0 +1,74 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+const int MOD = (int)1e9 + 7;
+
+vector<int> parent;
+vector<int> sz;
+vector<int> black_nodes_count;
+vector<bool> color;
+
+int find_set(int v) {
+    if (v == parent[v])
+        return v;
+    return parent[v] = find_set(parent[v]);
+}
+
+void unite_sets(int a, int b) {
+    a = find_set(a);
+    b = find_set(b);
+    if (a != b) {
+        if (sz[a] < sz[b])
+            swap(a, b);
+        parent[b] = a;
+        sz[a] += sz[b];
+        black_nodes_count[a] += black_nodes_count[b];
+    }
+}
+void solve() {
+    int n, q;
+    cin >> n >> q;
+    parent.resize(n + 1);
+    iota(parent.begin(), parent.end(), 0);
+    sz.assign(n + 1, 1);
+    black_nodes_count.assign(n + 1, 0);
+    color.assign(n + 1, false);
+    for (int i = 0; i < q; ++i) {
+        int type;
+        cin >> type;
+        if (type == 1) {
+            int u, v;
+            cin >> u >> v;
+            unite_sets(u, v);
+        } else if (type == 2) {
+            int v;
+            cin >> v;
+            int root = find_set(v);
+            if (color[v]) {
+                black_nodes_count[root]--;
+            } else {
+                black_nodes_count[root]++;
+            }
+            color[v] = !color[v];
+        } else {
+            int v;
+            cin >> v;
+            int root = find_set(v);
+            if (black_nodes_count[root] > 0) {
+                cout << "Yes\n";
+            } else {
+                cout << "No\n";
+            }
+        }
+    }
+}
+
+int main() {
+    FASTIO;
+    int t = 1; 
+    // cin >> t;
+    while (t--) solve();
+    return 0;
+}
