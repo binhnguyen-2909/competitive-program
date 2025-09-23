@@ -1,0 +1,73 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+void add(vector<long long>& bit, int idx, int val) {
+    int n = bit.size();
+    for (++idx; idx < n; idx += idx & -idx) {
+        bit[idx] += val;
+    }
+}
+
+long long query(const vector<long long>& bit, int idx) {
+    long long sum = 0;
+    for (++idx; idx > 0; idx -= idx & -idx) {
+        sum += bit[idx];
+    }
+    return sum;
+}
+
+long long count_inversions(const vector<int>& p) {
+    int n = p.size();
+    if (n == 0) return 0;
+    vector<long long> bit(n + 1, 0);
+    long long inversions = 0;
+    for (int i = 0; i < n; ++i) {
+        inversions += (long long)i - query(bit, p[i]);
+        add(bit, p[i], 1);
+    }
+    return inversions;
+}
+
+long long calculate_cost(int N, const string& S, char start_char) {
+    vector<int> p(2 * N);
+    int a_count = 0;
+    int b_count = 0;
+    for (int i = 0; i < 2 * N; ++i) {
+        if (S[i] == 'A') {
+            if (start_char == 'A') {
+                p[i] = 2 * a_count;
+            } else {
+                p[i] = 2 * a_count + 1;
+            }
+            a_count++;
+        } else {
+            if (start_char == 'B') {
+                p[i] = 2 * b_count;
+            } else {
+                p[i] = 2 * b_count + 1;
+            }
+            b_count++;
+        }
+    }
+    return count_inversions(p);
+}
+
+void solve() {
+    int N;
+    cin >> N;
+    string S;
+    cin >> S;
+    long long cost1 = calculate_cost(N, S, 'A');
+    long long cost2 = calculate_cost(N, S, 'B');
+    cout << min(cost1, cost2) << '\n';
+}
+
+int main() {
+    FASTIO;
+    int t = 1; 
+    // cin >> t;
+    while (t--) solve();
+    return 0;
+}
