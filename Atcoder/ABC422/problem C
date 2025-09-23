@@ -1,0 +1,23 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+const int MOD = (int)1e9 + 7;
+
+void solve() {
+    long long nA, nB, nC;
+    cin >> nA >> nB >> nC;
+    long long total_letters = nA + nB + nC;
+    long long max_from_total = total_letters / 3;
+    long long max_from_ac = min(nA, nC);
+    cout << min(max_from_total, max_from_ac) << "\n";
+}
+
+int main() {
+    FASTIO;
+    int t = 1; 
+    cin >> t;
+    while (t--) solve();
+    return 0;
+}
