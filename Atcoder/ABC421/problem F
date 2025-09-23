@@ -1,0 +1,130 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+const int MOD = (int)1e9 + 7;
+
+struct Node {
+    int val;
+    uint64_t pr;
+    int sz;
+    long long sum;
+    Node *l, *r, *p;
+    Node(int v, uint64_t prio) : val(v), pr(prio), sz(1), sum(v), l(nullptr), r(nullptr), p(nullptr) {}
+};
+
+static inline int getsz(Node* t){ return t ? t->sz : 0; }
+static inline long long getsum(Node* t){ return t ? t->sum : 0LL; }
+
+static inline void pull(Node* t){
+    if(!t) return;
+    t->sz  = 1 + getsz(t->l) + getsz(t->r);
+    t->sum = (long long)t->val + getsum(t->l) + getsum(t->r);
+    if(t->l) t->l->p = t;
+    if(t->r) t->r->p = t;
+}
+
+Node* merge(Node* a, Node* b){
+    if(!a) { if(b) b->p = nullptr; return b; }
+    if(!b) { if(a) a->p = nullptr; return a; }
+    if(a->pr > b->pr){
+        a->r = merge(a->r, b);
+        if(a->r) a->r->p = a;
+        pull(a);
+        a->p = nullptr;
+        return a;
+    }else{
+        b->l = merge(a, b->l);
+        if(b->l) b->l->p = b;
+        pull(b);
+        b->p = nullptr;
+        return b;
+    }
+}
+
+void split(Node* t, int k, Node* &a, Node* &b){
+    if(!t){ a = b = nullptr; return; }
+    if(getsz(t->l) >= k){
+        split(t->l, k, a, t->l);
+        if(t->l) t->l->p = t;
+        pull(t);
+        b = t; b->p = nullptr;
+    }else{
+        split(t->r, k - getsz(t->l) - 1, t->r, b);
+        if(t->r) t->r->p = t;
+        pull(t);
+        a = t; a->p = nullptr;
+    }
+}
+
+int getIndex(Node* t){
+    int idx = getsz(t->l) + 1;
+    while(t->p){
+        if(t->p->r == t) idx += getsz(t->p->l) + 1;
+        t = t->p;
+    }
+    return idx;
+}
+
+void solve() {
+    int Q;
+    cin >> Q;
+
+    mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
+
+    vector<Node*> ptr(Q + 1, nullptr);
+
+    Node* root = new Node(0, rng());
+    ptr[0] = root;
+
+    vector<long long> answers;
+    answers.reserve(Q);
+
+    for(int i = 1; i <= Q; ++i){
+        int t; cin >> t;
+        if(t == 1){
+            int x; cin >> x;
+            Node* nx = ptr[x];
+            int pos = getIndex(nx);
+            Node *L, *R;
+            split(root, pos, L, R);
+            Node* nw = new Node(i, rng());
+            ptr[i] = nw;
+            root = merge(merge(L, nw), R);
+        }else{
+            int x, y; cin >> x >> y;
+            Node* nx = ptr[x];
+            Node* ny = ptr[y];
+            int px = getIndex(nx);
+            int py = getIndex(ny);
+            int l = min(px, py);
+            int r = max(px, py);
+            
+            if (l + 1 <= r - 1) {
+                Node *A, *B;
+                split(root, l, A, B);
+                int midlen = r - l - 1;
+                Node *MID, *C;
+                split(B, midlen, MID, C);
+                long long s = getsum(MID);
+                answers.push_back(s);
+                root = merge(A, C);
+            } else {
+                answers.push_back(0);
+            }
+        }
+    }
+
+    for(long long v : answers){
+        cout << v << '\n';
+    }
+}
+
+int main() {
+    FASTIO;
+    int t = 1; 
+    // cin >> t;
+    while (t--) solve();
+    return 0;
+}
