@@ -1,0 +1,89 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+const int MOD = (int)1e9 + 7;
+
+void solve() {
+    long long rt, ct, ra, ca;
+    cin >> rt >> ct >> ra >> ca;
+    long long n;
+    int m, l;
+    cin >> n >> m >> l;
+    vector<pair<char, long long>> s_moves(m);
+    for (int i = 0; i < m; ++i) {
+        cin >> s_moves[i].first >> s_moves[i].second;
+    }
+    vector<pair<char, long long>> t_moves(l);
+    for (int i = 0; i < l; ++i) {
+        cin >> t_moves[i].first >> t_moves[i].second;
+    }
+    map<char, int> dr_map = {{'U', -1}, {'D', 1}, {'L', 0}, {'R', 0}};
+    map<char, int> dc_map = {{'U', 0}, {'D', 0}, {'L', -1}, {'R', 1}};
+    long long ans = 0;
+    int s_ptr = 0, t_ptr = 0;
+    long long curr_rel_r = 0;
+    long long curr_rel_c = 0;
+    long long target_rel_r = ra - rt;
+    long long target_rel_c = ca - ct;
+    while (s_ptr < m && t_ptr < l) {
+        long long len = min(s_moves[s_ptr].second, t_moves[t_ptr].second);
+        char move_s = s_moves[s_ptr].first;
+        char move_t = t_moves[t_ptr].first;
+        int dr_s = dr_map[move_s];
+        int dc_s = dc_map[move_s];
+        int dr_t = dr_map[move_t];
+        int dc_t = dc_map[move_t];
+        int ddr = dr_s - dr_t;
+        int ddc = dc_s - dc_t;
+        long long needed_r = target_rel_r - curr_rel_r;
+        long long needed_c = target_rel_c - curr_rel_c;
+        if (ddr == 0 && ddc == 0) {
+            if (needed_r == 0 && needed_c == 0) {
+                ans += len;
+            }
+        } else if (ddr == 0) {
+            if (needed_r == 0 && needed_c % ddc == 0) {
+                long long k = needed_c / ddc;
+                if (k > 0 && k <= len) {
+                    ans++;
+                }
+            }
+        } else if (ddc == 0) {
+            if (needed_c == 0 && needed_r % ddr == 0) {
+                long long k = needed_r / ddr;
+                if (k > 0 && k <= len) {
+                    ans++;
+                }
+            }
+        } else {
+            if (needed_r % ddr == 0 && needed_c % ddc == 0) {
+                long long k1 = needed_r / ddr;
+                long long k2 = needed_c / ddc;
+                if (k1 == k2 && k1 > 0 && k1 <= len) {
+                    ans++;
+                }
+            }
+        }
+        curr_rel_r += len * ddr;
+        curr_rel_c += len * ddc;
+        s_moves[s_ptr].second -= len;
+        t_moves[t_ptr].second -= len;
+        if (s_moves[s_ptr].second == 0) {
+            s_ptr++;
+        }
+        if (t_moves[t_ptr].second == 0) {
+            t_ptr++;
+        }
+    }
+    cout << ans << endl;
+}
+
+int main() {
+    FASTIO;
+    int t = 1; 
+    // cin >> t;
+    while (t--) solve();
+    return 0;
+}
