@@ -1,0 +1,51 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+const int MOD = (int)1e9 + 7;
+
+void solve() {
+    int n, q;
+    cin >> n >> q;
+    vector<int> a(n), b(n);
+    long long current_sum = 0;
+
+    for (int i = 0; i < n; ++i) {
+        cin >> a[i];
+    }
+    for (int i = 0; i < n; ++i) {
+        cin >> b[i];
+    }
+
+    for (int i = 0; i < n; ++i) {
+        current_sum += min(a[i], b[i]);
+    }
+
+    while (q--) {
+        char c;
+        int x, v;
+        cin >> c >> x >> v;
+        int idx = x - 1;
+
+        current_sum -= min(a[idx], b[idx]);
+
+        if (c == 'A') {
+            a[idx] = v;
+        } else {
+            b[idx] = v;
+        }
+
+        current_sum += min(a[idx], b[idx]);
+
+        cout << current_sum << "\n";
+    }
+}
+
+int main() {
+    FASTIO;
+    int t = 1; 
+    // cin >> t;
+    while (t--) solve();
+    return 0;
+}
