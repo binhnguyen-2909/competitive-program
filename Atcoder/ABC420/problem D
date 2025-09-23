@@ -1,0 +1,74 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define FASTIO ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+
+const int MOD = (int)1e9 + 7;
+
+void solve() {
+    int h, w;
+    cin >> h >> w;
+    vector<string> a(h);
+    int start_r, start_c, goal_r, goal_c;
+    for (int i = 0; i < h; ++i) {
+        cin >> a[i];
+        for (int j = 0; j < w; ++j) {
+            if (a[i][j] == 'S') {
+                start_r = i;
+                start_c = j;
+            } else if (a[i][j] == 'G') {
+                goal_r = i;
+                goal_c = j;
+            }
+        }
+    }
+    vector<vector<vector<int>>> dist(h, vector<vector<int>>(w, vector<int>(2, -1)));
+    queue<tuple<int, int, int>> q;
+    dist[start_r][start_c][0] = 0;
+    q.push({start_r, start_c, 0});
+    int dr[] = {-1, 1, 0, 0};
+    int dc[] = {0, 0, -1, 1};
+    while (!q.empty()) {
+        auto [r, c, door_state] = q.front();
+        q.pop();
+        if (r == goal_r && c == goal_c) {
+            cout << dist[r][c][door_state] << endl;
+            return;
+        }
+        for (int i = 0; i < 4; ++i) {
+            int nr = r + dr[i];
+            int nc = c + dc[i];
+            if (nr < 0 || nr >= h || nc < 0 || nc >= w) {
+                continue;
+            }
+            char next_cell = a[nr][nc];
+            if (next_cell == '#') {
+                continue;
+            }
+            if (door_state == 1 && next_cell == 'o') {
+                continue;
+            }
+            if (door_state == 0 && next_cell == 'x') {
+                continue;
+            }
+
+            int next_door_state = door_state;
+            if (next_cell == '?') {
+                next_door_state = 1 - door_state;
+            }
+            if (dist[nr][nc][next_door_state] == -1) {
+                dist[nr][nc][next_door_state] = dist[r][c][door_state] + 1;
+                q.push({nr, nc, next_door_state});
+            }
+        }
+    }
+    cout << -1 << endl;
+}
+
+int main() {
+    FASTIO;
+    int t = 1;
+    // cin >> t;
+    while (t--) solve();
+    return 0;
+}
